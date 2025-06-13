@@ -12,21 +12,47 @@ $nome_usuario_logado = $_SESSION['usuario'] ?? 'Usuário';
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Minha Playlist de Músicas</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>  
 </head>
 <body>
 
-    <h1>Plataforma de Música</h1>
-
-    <nav>
-        <a href="index.php">Home</a> |
-        <?php if ($logado): ?>
-            <a href="add_music.php">Adicionar Música</a> |
-            <a href="list_music.php">Minhas Músicas</a> |
-            <a href="logout.php">Sair</a>
-        <?php else: ?>
-            <a href="login.php">Login</a> |
-            <a href="cadastro.php">Cadastre-se</a>
-        <?php endif; ?>
+    
+    <nav class="navbar navbar-expand-lg bg-body-tertiary">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">Plataforma de Música</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav">
+                <li class="nav-item">
+                <a class="nav-link active" aria-current="page" href="index.php">Home</a>
+                </li>
+                <?php if ($logado): ?>
+                <li class="nav-item">
+                <a class="nav-link" href="add_music.php">Adicionar Música</a>
+                </li>
+                <li class="nav-item">
+                <a class="nav-link" href="list_music.php">Minhas Músicas</a>
+                </li>
+                <li class="nav-item">
+                <a class="nav-link" href="logout.php">Sair</a>
+                </li>
+                <?php else: ?>
+                <li class="nav-item">
+                <a class="nav-link" href="login.php">Login</a>
+                </li>
+                <li class="nav-item">
+                <a class="nav-link" href="cadastro.php">Cadastre-se</a>
+                </li>
+                <?php endif; ?>
+            </ul>
+            </div>
+        </div>
     </nav>
 
     <hr> 
