@@ -1,74 +1,66 @@
-<?php session_start();
+<?php
+
+session_start();
+
 require_once 'includes/conexao.php';
-require_once 'includes/functions.php';
+require_once 'includes/functions.php'; 
 
 $conn = conectar_banco();
 
-$mensagem_erro = ''; 
+
+$usuario_ou_email_preencher = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Coleta e sanitiza os dados do formulário
     $usuario_ou_email = htmlspecialchars(trim($_POST['usuario'] ?? ''));
     $senha_digitada = $_POST['senha'] ?? '';
 
+    // Armazena o valor digitado para preencher o campo se houver erro
+    $usuario_ou_email_preencher = $usuario_ou_email;
+
     if (campos_login_em_branco($usuario_ou_email, $senha_digitada)) {
-        header("Location: login.php?codigo=2"); // Código 2 para campos em branco
+        header("Location: login.php?codigo=2"); 
         exit();
     } else {
-        // --- Preparação da Query para Validação (Requisito 2 e Observações Gerais - Prepared Statements) ---
-        // Agora usando $conn (o objeto de conexão) para preparar a declaração.
+        
         $stmt = mysqli_prepare($conn, "SELECT id, nome_usuario, senha_hash FROM usuarios WHERE nome_usuario = ? OR email = ?");
 
         if ($stmt) {
-            // 'ss' indica que ambos os parâmetros são strings
             mysqli_stmt_bind_param($stmt, "ss", $usuario_ou_email, $usuario_ou_email);
             mysqli_stmt_execute($stmt);
-            mysqli_stmt_store_result($stmt); // Armazena o resultado da query
+            mysqli_stmt_store_result($stmt);
 
-            // Se um usuário foi encontrado (número de linhas > 0)
             if (mysqli_stmt_num_rows($stmt) === 1) {
-                // Vincula as colunas do resultado a variáveis PHP
                 mysqli_stmt_bind_result($stmt, $id, $nome_usuario_db, $senha_hash_db);
-                mysqli_stmt_fetch($stmt); // Obtém os valores do resultado
+                mysqli_stmt_fetch($stmt);
 
-                // --- Verificação da Senha (Requisito 2) ---
                 if (password_verify($senha_digitada, $senha_hash_db)) {
-                    // Login bem-sucedido!
-
-                    // --- Início da Sessão (Requisito: Obrigatório o uso de sessões) ---
                     $_SESSION['logado'] = true;
                     $_SESSION['usuario_id'] = $id;
                     $_SESSION['usuario_nome'] = $nome_usuario_db;
 
-                    // Ajustes para o lock.php funcionar como seu exemplo
                     $_SESSION['usuario'] = $nome_usuario_db;
-                    $_SESSION['senha'] = $senha_digitada;
+                    $_SESSION['senha'] = $senha_digitada; 
 
-                    // Redireciona para a página principal após o login (agora para index.php)
                     header("Location: index.php");
                     exit();
                 } else {
-                    // Senha incorreta (Requisito 2 - Mensagem clara)
-                    header("Location: login.php?codigo=1"); // Código 1 para usuário/senha inválidos
+                    header("Location: login.php?codigo=1"); // Senha incorreta
                     exit();
                 }
             } else {
-                // Usuário/e-mail não encontrado (Requisito 2 - Mensagem clara)
-                header("Location: login.php?codigo=1"); // Código 1 para usuário/senha inválidos
+                header("Location: login.php?codigo=1"); // Usuário/e-mail não encontrado
                 exit();
             }
-            mysqli_stmt_close($stmt); // Fecha o prepared statement
+            mysqli_stmt_close($stmt);
         } else {
-            // Erro na preparação da query
-            header("Location: login.php?codigo=3"); // Código 3 para erro SQL interno
+            header("Location: login.php?codigo=3"); // Erro na preparação da query
             exit();
         }
     }
 }
 
-// Fechando a conexão com o banco de dados.
-// CORRIGIDO: Usando $conn->close() ou mysqli_close($conn).
-mysqli_close($conn); // Ou $conn->close();
+mysqli_close($conn); 
 ?>
 
 <!DOCTYPE html>
@@ -77,34 +69,36 @@ mysqli_close($conn); // Ou $conn->close();
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login - Playlist de Músicas</title>
-    <!-- REMOVIDO: Quaisquer links para CSS ou Bootstrap, conforme solicitado. -->
-</head>
+    
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+
+    </head>
 <body>
-    <div style="max-width: 400px; margin: 50px auto; padding: 20px; border: 1px solid #ccc; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
-        <h2>Informe seus dados para acessar a Área Restrita</h2>
+    <?php
+    require_once 'includes/header.php';
+    ?>
 
-        <?php
-        // Exibe mensagens de erro ou sucesso
-        // A função verificar_codigo() deve estar definida em includes/functions.php.
-        verificar_codigo();
-        ?>
+    <main class="container mt-5"> <div class="row justify-content-center"> <div class="col-md-6 col-lg-5"> <div class="card shadow-lg"> <div class="card-body p-4"> <h2 class="card-title text-center mb-4">Acesse a Área Restrita</h2> <?php
+                        verificar_codigo();
+                        ?>
 
-        <form action="login.php" method="post">
-            <p>
-                <label for="usuario">Usuário:</label><br>
-                <input type="text" name="usuario" id="usuario" required>
-            </p>
+                        <form action="login.php" method="post">
+                            <div class="mb-3"> <label for="usuario" class="form-label">Usuário ou E-mail:</label> <input type="text" name="usuario" id="usuario" class="form-control" required autofocus 
+                                       value="<?php echo htmlspecialchars($usuario_ou_email_preencher); ?>"> </div>
 
-            <p>
-                <label for="senha">Senha:</label><br>
-                <input type="password" name="senha" id="senha" required>
-            </p>
+                            <div class="mb-4"> <label for="senha" class="form-label">Senha:</label>
+                                <input type="password" name="senha" id="senha" class="form-control" required>
+                            </div>
 
-            <button type="submit">Logar</button> <!-- Botão simples, sem classes Bootstrap -->
-        </form>
-        <p style="margin-top: 15px; text-align: center;">
-            Ainda não tem uma conta? <a href="cadastro.php">Cadastre-se aqui!</a>
-        </p>
-    </div>
+                            <div class="d-grid"> <button type="submit" class="btn btn-primary btn-lg">Entrar</button> </div>
+                        </form>
+                        <p class="text-center mt-3 mb-0"> Ainda não tem uma conta? <a href="cadastro.php" class="text-decoration-none">Cadastre-se aqui!</a> </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
 </body>
 </html>

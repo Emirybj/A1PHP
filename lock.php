@@ -1,9 +1,7 @@
 <?php
-session_start();
-
-if (!isset($_SESSION['usuario']) || !isset($_SESSION['senha'])) {
-    header('location:index.php?codigo=0'); //Se o usuário não estiver logado ele é redirecionado para a página inicial.
-    exit;
+if (!isset($_SESSION['logado']) || $_SESSION['logado'] !== true) {
+    
+    header('Location: login.php?codigo=permissao_negada'); 
+    exit(); 
 }
-
 ?>

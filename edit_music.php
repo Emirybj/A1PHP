@@ -1,6 +1,11 @@
 <?php
+
+session_start();
+
 require_once 'lock.php';
-require_once 'conexao.php'; 
+require_once 'includes/conexao.php'; 
+
+$mysqli = conectar_banco();
 
 $mensagem = ''; 
 $musica_id = $_GET['id'] ?? null; 
@@ -71,5 +76,75 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $usuario_id !== null) {
     }
 }
 
-$mysqli->close();
+if ($mysqli) {
+    $mysqli->close();
+}
 ?>
+
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Editar Música - Meu Sistema</title>
+    
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+
+    </head>
+<body>
+    <?php
+    require_once 'includes/header.php';
+    ?>
+
+    <main class="container mt-5">
+        <div class="row justify-content-center">
+            <div class="col-md-8 col-lg-6">
+                <div class="card shadow-lg">
+                    <div class="card-body p-4">
+                        <h2 class="card-title text-center mb-4">Editar Música</h2>
+
+                        <?php
+                        // Exibe a mensagem de feedback
+                        if (!empty($mensagem)) {
+                            echo $mensagem;
+                        }
+                        ?>
+
+                        <?php if ($musica_encontrada): // Somente exibe o formulário se a música foi encontrada ?>
+                            <form action="edit_music.php?id=<?php echo htmlspecialchars($musica_encontrada['id']); ?>" method="post">
+                                <input type="hidden" name="musica_id" value="<?php echo htmlspecialchars($musica_encontrada['id']); ?>">
+
+                                <div class="mb-3">
+                                    <label for="titulo" class="form-label">Título da Música:</label>
+                                    <input type="text" name="titulo" id="titulo" 
+                                           class="form-control" required autofocus 
+                                           value="<?php echo htmlspecialchars($musica_encontrada['titulo']); ?>">
+                                </div>
+
+                                <div class="mb-4">
+                                    <label for="descricao" class="form-label">Descrição (Artista, Álbum, Gênero, etc.):</label>
+                                    <textarea name="descricao" id="descricao" class="form-control" rows="4" required><?php echo htmlspecialchars($musica_encontrada['descricao']); ?></textarea>
+                                </div>
+
+                                <div class="d-grid gap-2">
+                                    <button type="submit" class="btn btn-primary btn-lg">Atualizar Música</button>
+                                    <a href="list_music.php" class="btn btn-outline-secondary btn-lg">Cancelar e Voltar</a>
+                                </div>
+                            </form>
+                        <?php else: ?>
+                            <div class="alert alert-warning" role="alert">
+                                Música não encontrada ou você não tem permissão para editá-la.
+                                <a href="list_music.php" class="alert-link">Voltar para Minhas Músicas</a>
+                            </div>
+                        <?php endif; ?>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+</body>
+</html>
+
+

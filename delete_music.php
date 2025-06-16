@@ -1,6 +1,11 @@
 <?php
+
+session_start();
+
 require_once 'lock.php';
-require_once 'conexao.php'; 
+require_once 'includes/conexao.php'; 
+
+$mysqli = conectar_banco();
 
 $musica_id = $_GET['id'] ?? null; 
 $usuario_id = $_SESSION['usuario_id'] ?? null; 
@@ -40,7 +45,9 @@ if ($stmt) {
 }
 
 // Fecha a conexão com o banco de dados
-$mysqli->close();
+if ($mysqli) {
+    $mysqli->close();
+}
 
 // Redireciona de volta para a página de listagem de músicas com uma mensagem de status
 header("Location: list_music.php?status=" . $mensagem_delete);

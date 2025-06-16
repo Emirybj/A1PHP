@@ -74,9 +74,9 @@ function verificar_codigo($codigo = null) {
             $msg = "Operação realizada com sucesso!";
             $estilo_cor = "color: green;";
             break;
-        case 11: // Código para indicar que a música não foi encontrada/pertence ao usuário
+        case 11: 
             $msg = "Música não encontrada ou você não tem permissão para esta ação.";
-            $estilo_cor = "color: orange;"; // Mensagem de aviso/informação
+            $estilo_cor = "color: orange;"; 
             break;
         case 'senhas_nao_coincidem':
             $msg = "As senhas não coincidem!";
